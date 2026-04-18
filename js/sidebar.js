@@ -1,73 +1,74 @@
-export function initSidebar() {
-  const sidebar    = document.querySelector('[data-sidebar]');
-  const shell      = document.querySelector('.app__shell');
-  const toggle     = document.querySelector('[data-sidebar-toggle]');
-  const menuBtn    = document.querySelector('[data-menu-toggle]');
-  const backdrop   = document.querySelector('[data-sidebar-backdrop]');
+// Sidebar tab switching + empty state for non-dashboard tabs
+(function(){
+  const $  = (sel, root) => (root || document).querySelector(sel);
+  const $$ = (sel, root) => Array.from((root || document).querySelectorAll(sel));
 
-  if (!sidebar || !shell) return;
+  function cap(s){ return s.charAt(0).toUpperCase() + s.slice(1); }
 
-  const STORAGE_KEY = 'cryptotrack:sidebar-collapsed';
-  const stored = localStorage.getItem(STORAGE_KEY);
-  const isMobile = () => window.matchMedia('(max-width: 768px)').matches;
+  const mobileMq = window.matchMedia('(max-width: 860px)');
+  const sidebar = () => $('[data-sidebar]');
+  const toggle = () => $('[data-sidebar-toggle]');
+  const closeBtn = () => $('[data-sidebar-close]');
+  const backdrop = () => $('[data-sidebar-backdrop]');
 
-  // Desktop collapse state
-  const setCollapsed = (collapsed) => {
-    sidebar.classList.toggle('sidebar--collapsed', collapsed);
-    shell.classList.toggle('app__shell--collapsed', collapsed);
-    if (toggle) toggle.setAttribute('aria-label', collapsed ? 'Expand sidebar' : 'Collapse sidebar');
-    localStorage.setItem(STORAGE_KEY, collapsed ? '1' : '0');
-  };
+  function setTab(tab){
+    $$('.navitem').forEach(b => b.classList.toggle('is-active', b.dataset.tab === tab));
+    const content = $('[data-content]');
+    const empty = $('[data-empty]');
+    if (tab === 'dashboard'){
+      content.hidden = false;
+      empty.hidden = true;
+    } else {
+      content.hidden = true;
+      empty.hidden = false;
+      $('[data-empty-title]').textContent = cap(tab);
+    }
+  }
 
-  setCollapsed(stored === '1');
+  function syncDrawer(open){
+    const side = sidebar();
+    const btn = toggle();
+    const shade = backdrop();
+    if (!side || !btn || !shade) return;
+    side.classList.toggle('is-open', open);
+    shade.hidden = !open;
+    btn.setAttribute('aria-expanded', String(open));
+    document.body.classList.toggle('has-drawer', open);
+  }
 
-  if (toggle) {
-    toggle.addEventListener('click', () => {
-      if (isMobile()) {
-        closeDrawer();
-        return;
-      }
-      setCollapsed(!sidebar.classList.contains('sidebar--collapsed'));
+  function closeDrawer(){
+    syncDrawer(false);
+  }
+
+  function toggleDrawer(){
+    if (!mobileMq.matches) return;
+    syncDrawer(!sidebar().classList.contains('is-open'));
+  }
+
+  function initSidebar(){
+    $$('.navitem').forEach(btn => {
+      btn.addEventListener('click', () => {
+        setTab(btn.dataset.tab);
+        if (mobileMq.matches) closeDrawer();
+      });
+    });
+    $('[data-empty-back]').addEventListener('click', () => setTab('dashboard'));
+
+    const btn = toggle();
+    const dismiss = closeBtn();
+    const shade = backdrop();
+
+    if (btn) btn.addEventListener('click', toggleDrawer);
+    if (dismiss) dismiss.addEventListener('click', closeDrawer);
+    if (shade) shade.addEventListener('click', closeDrawer);
+
+    window.addEventListener('resize', () => {
+      if (!mobileMq.matches) closeDrawer();
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closeDrawer();
     });
   }
 
-  // Mobile drawer state
-  const openDrawer = () => {
-    sidebar.classList.add('sidebar--open');
-    backdrop?.classList.add('sidebar-backdrop--visible');
-    document.body.style.overflow = 'hidden';
-    menuBtn?.setAttribute('aria-expanded', 'true');
-  };
-
-  const closeDrawer = () => {
-    sidebar.classList.remove('sidebar--open');
-    backdrop?.classList.remove('sidebar-backdrop--visible');
-    document.body.style.overflow = '';
-    menuBtn?.setAttribute('aria-expanded', 'false');
-  };
-
-  if (menuBtn) {
-    menuBtn.addEventListener('click', () => {
-      if (sidebar.classList.contains('sidebar--open')) closeDrawer();
-      else openDrawer();
-    });
-  }
-
-  if (backdrop) backdrop.addEventListener('click', closeDrawer);
-
-  // Close the drawer if the viewport grows past mobile
-  window.addEventListener('resize', () => {
-    if (!isMobile() && sidebar.classList.contains('sidebar--open')) closeDrawer();
-  });
-
-  // Let nav items act like a router without breaking the page
-  const items = document.querySelectorAll('.sidebar__item');
-  items.forEach((item) => {
-    item.addEventListener('click', (e) => {
-      e.preventDefault();
-      items.forEach((i) => i.classList.remove('sidebar__item--active'));
-      item.classList.add('sidebar__item--active');
-      if (isMobile()) closeDrawer();
-    });
-  });
-}
+  window.CT = Object.assign(window.CT || {}, { initSidebar });
+})();

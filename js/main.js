@@ -1,15 +1,21 @@
-import { renderCards, renderHeader, renderTable, initTableEvents } from './ui.js';
-import { initChart } from './chart.js';
-import { initAnimations, initClock } from './animations.js';
-import { initSidebar } from './sidebar.js';
-
 document.addEventListener('DOMContentLoaded', () => {
-  renderHeader();
-  renderCards();
-  renderTable();
-  initTableEvents();
-  initChart();
-  initSidebar();
-  initClock();
-  initAnimations();
+  CT.renderMarket();
+  CT.renderStats();
+  CT.renderPerformance();
+  CT.initPerfControls();
+  CT.renderAllocation();
+  CT.renderWatchlist();
+  CT.renderMovers();
+  CT.initMovers();
+  CT.renderNews();
+  CT.renderTx();
+  CT.initTxFilters();
+  CT.renderInsights();
+
+  CT.initSidebar();
+  CT.initHero();
+  CT.initActions();
+  CT.initBell();
+  CT.initSearch();
+  CT.initDate();
 });

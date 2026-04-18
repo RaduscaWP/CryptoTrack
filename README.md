@@ -1,170 +1,80 @@
-# CryptoTrack
+# CryptoTrack Dashboard
 
-A dark, data-dense crypto portfolio dashboard. Built with **HTML5, SCSS, and vanilla JavaScript ES6+** — no frameworks, no build step, no dependencies beyond Chart.js and a pair of Google Fonts.
+CryptoTrack is a static crypto portfolio dashboard prototype built with plain HTML, CSS, and vanilla JavaScript. It focuses on a polished operator-style interface: a large portfolio hero, market snapshots, asset performance, allocation, watchlists, movers, news, transactions, and monthly insights.
 
-Designed to feel like a Bloomberg terminal crossed with a DeFi interface, not a generic SaaS product.
+## Highlights
 
----
+- Premium light-surface dashboard layout with a bold portfolio hero
+- Inline SVG charts for sparks, area charts, donuts, and bar summaries
+- Clickable BTC and ETH stat cards, watchlist rows, and movers that update the main performance chart
+- Coin SVG branding wired into supported assets such as Bitcoin, Ethereum, Solana, and BNB
+- Prototype sidebar navigation with empty states for non-dashboard sections
+- Mobile drawer menu for navigation
+- Stacked card layout on small screens
+- Watchlist rows collapsed into readable mobile cards
+- Transaction table converted into a mobile list layout
 
-## What's in it
+## Tech
 
-- **Portfolio header** with animated counters (count-up from zero on load)
-- **Coin cards** for BTC / ETH / SOL / BNB — current price, 24h change, 7-day change, holdings, USD value, 24h high/low
-- **Interactive price chart** (Chart.js) — click a coin card to swap the dataset; switch between 7 / 30 / 90 day windows
-- **Transactions table** — live search by coin, sortable columns (click a header to toggle asc/desc), 8-row pagination
-- **Collapsible sidebar** — remembers state via `localStorage`; on mobile, becomes a slide-in drawer
-- **Live UTC clock** and a pulsing "live feed" indicator
-- **Responsive layout** — 4-up cards on desktop, 2x2 on tablet, stacked on phone
-- **Keyboard accessible** — tab through cards, Enter/Space to activate
+- HTML5
+- CSS in a single compiled stylesheet: `css/main.css`
+- Vanilla JavaScript split across small files in `js/`
+- Google Fonts for Inter and JetBrains Mono
 
----
+There is no framework, build step, or package manifest required to run the app.
 
-## Stack
+## Run locally
 
-| Layer | Choice |
-|---|---|
-| Markup | HTML5 |
-| Styles | SCSS (BEM), compiled manually |
-| Scripts | Vanilla JS ES6+ modules (`type="module"`) |
-| Chart | [Chart.js 4.x](https://www.chartjs.org/) via CDN |
-| Fonts | JetBrains Mono (numbers), Syne (labels) — Google Fonts CDN |
-| Icons | Inline SVG + [cryptocurrency-icons](https://github.com/spothq/cryptocurrency-icons) for coin marks |
-
-No bundler. No transpiler. No npm `dependencies` in `package.json` (none at all, actually — the repo has no `package.json`).
-
----
-
-## Running it locally
+You can open `index.html` directly, but using a small static server is the most reliable option.
 
 ```bash
-# 1. Clone
-git clone <this-repo> cryptotrack && cd cryptotrack
-
-# 2. Compile the SCSS (one-off)
-npx sass scss/main.scss css/main.css --style=expanded
-
-#    …or keep it watching on edits
-npx sass --watch scss/main.scss css/main.css
-
-# 3. Serve the folder
-npx serve -l 3000 .
-#    then open http://localhost:3000
+python -m http.server 4173
 ```
 
-Opening `index.html` directly via `file://` also works, but ES module imports need an HTTP origin — so use a static server.
+Then open:
 
-### View it on your phone (same Wi-Fi)
-
-```bash
-# Get your LAN IP (Windows)
-ipconfig | findstr IPv4
-
-# Start the server, then open http://<your-ip>:3000 on the phone
-npx serve -l 3000 .
+```text
+http://127.0.0.1:4173
 ```
 
-If the phone can't reach it, your OS firewall is blocking port 3000. On Windows, allow it with:
+## What the dashboard includes
 
-```powershell
-New-NetFirewallRule -DisplayName "CryptoTrack dev 3000" -Direction Inbound -Protocol TCP -LocalPort 3000 -Action Allow -Profile Private
-```
-
----
+- Portfolio balance hero with quick actions for receive, send, and swap
+- Global market trend tiles
+- Four summary cards for P/L, Bitcoin, Ethereum, and invested capital
+- Interactive performance chart with `1D`, `1W`, `1M`, `1Y`, and `ALL` ranges
+- Portfolio allocation donut
+- Watchlist, top movers, and market briefing panels
+- Recent transactions with quick filters
+- Monthly insight cards and realized P/L bars
 
 ## Project structure
 
-```
+```text
 .
-├── index.html               # Single page, no templating
-├── assets/
-│   ├── favicon.svg
-│   └── icons/               # btc.svg, eth.svg, sol.svg, bnb.svg
-├── scss/
-│   ├── main.scss            # Imports every partial, nothing else
-│   ├── _variables.scss      # Design tokens
-│   ├── _reset.scss
-│   ├── _typography.scss
-│   ├── _layout.scss
-│   ├── _sidebar.scss
-│   ├── _header.scss
-│   ├── _cards.scss
-│   ├── _chart.scss
-│   ├── _table.scss
-│   └── _animations.scss
-├── css/
-│   └── main.css             # Compiled output
-└── js/
-    ├── main.js              # Entry point — wires modules together
-    ├── data.js              # Mock coins, transactions, price series, formatters
-    ├── ui.js                # Card + table rendering, sort/filter/pagination
-    ├── chart.js             # Chart.js config, per-coin data + tab switching
-    ├── animations.js        # Number count-up, UTC clock, IntersectionObserver
-    └── sidebar.js           # Desktop collapse + mobile drawer
+|-- index.html
+|-- README.md
+|-- assets/
+|   |-- favicon.svg
+|   `-- icons/
+|       |-- bnb.svg
+|       |-- btc.svg
+|       |-- eth.svg
+|       `-- sol.svg
+|-- css/
+|   `-- main.css
+`-- js/
+    |-- chart.js
+    |-- data.js
+    |-- main.js
+    |-- sidebar.js
+    `-- ui.js
 ```
 
-BEM naming throughout. Every number in the UI renders in JetBrains Mono with tabular figures so columns line up.
+## Data and behavior
 
----
+All portfolio data is mocked in `js/data.js`. UI rendering lives in `js/ui.js`, chart helpers live in `js/chart.js`, sidebar and mobile drawer behavior live in `js/sidebar.js`, and `js/main.js` wires everything together on load.
 
-## Data
+## Mobile status
 
-All data is mocked and defined in [`js/data.js`](js/data.js):
-
-- **4 coins** with realistic early-2026 prices and holdings
-- **15 transactions** over the last 30 days, mixed buy/sell, mixed profit/loss
-- **Price series** for each coin at 7 / 30 / 90 day windows
-
-Swapping in a live API (CoinGecko, CoinMarketCap, etc.) is a matter of replacing those exports and adjusting `fmtCurrency` / `fmtPercent` if you need different locales. The rendering layer never talks to anything but `data.js`.
-
----
-
-## Design rules this project follows
-
-A few constraints that keep it from looking like every other dashboard template:
-
-- No purple gradients anywhere (SOL is purple, but only as a line stroke — its chart fill uses cyan)
-- No backdrop-filter blur above 4px — restrained glass, not frosted bloat
-- No border-radius above 12px on cards — sharp, not bubbly
-- No Inter / Roboto / system-ui — JetBrains Mono + Syne only
-- Coin brand colors appear only on card hover glow and as tiny chart strokes, not as decorative backgrounds
-- Five palette colors total: two backgrounds, green (positive), red (negative), cyan (interactive)
-
----
-
-## Browser support
-
-Modern evergreen browsers (Chromium, Firefox, Safari 14+). Uses ES modules, `IntersectionObserver`, `matchMedia`, CSS custom properties, `100dvh`. No polyfills.
-
----
-
-## Deployment
-
-The folder is static and self-contained. Drop it on anything:
-
-```bash
-# Vercel
-vercel --prod
-
-# Netlify
-netlify deploy --prod --dir=.
-
-# GitHub Pages — just push to a Pages-enabled branch
-```
-
-No `build` step, no output directory to configure — `index.html` is the entry point and everything it references is a relative path.
-
----
-
-## Known limitations
-
-- Transactions are read-only. There's no "add transaction" form.
-- The sidebar's `Portfolio` / `Markets` / `Settings` links are visual only — they don't route anywhere.
-- Data is static: prices, holdings, and the clock's date don't change until you edit the source.
-
-These are fine for a portfolio piece. If you fork this for real use, hook `data.js` up to an API and add a state layer.
-
----
-
-## License
-
-MIT. Use it, fork it, rip the styles out, whatever you need.
+The current layout has been checked at a phone-sized viewport and now holds up well on small screens. Navigation remains accessible through a drawer, the hero stays readable, and the dense desktop table sections are converted into stacked mobile-friendly layouts.
