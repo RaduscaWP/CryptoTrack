@@ -25,7 +25,9 @@
     BTC: 'assets/icons/btc.svg',
     ETH: 'assets/icons/eth.svg',
     SOL: 'assets/icons/sol.svg',
-    BNB: 'assets/icons/bnb.svg'
+    BNB: 'assets/icons/bnb.svg',
+    LINK: 'assets/icons/link.svg',
+    ARB: 'assets/icons/arb.svg'
   };
 
   function tokenEl(sym, size){
@@ -425,6 +427,44 @@
   function initSearch(){
     const input = $('[data-search]');
     if (!input) return;
+    const header = document.querySelector('.header');
+    const mobileToggle = $('[data-mobile-search-toggle]');
+    const mobileSearchMq = window.matchMedia('(max-width: 640px)');
+
+    function setMobileSearch(open){
+      if (!header || !mobileToggle) return;
+      header.classList.toggle('header--search-open', open);
+      mobileToggle.setAttribute('aria-expanded', String(open));
+      if (open){
+        requestAnimationFrame(() => input.focus());
+      }
+    }
+
+    if (mobileToggle){
+      mobileToggle.addEventListener('click', () => {
+        if (!mobileSearchMq.matches) return;
+        setMobileSearch(!header.classList.contains('header--search-open'));
+      });
+    }
+
+    document.addEventListener('click', e => {
+      if (!mobileSearchMq.matches || !header || !header.classList.contains('header--search-open')) return;
+      if (header.contains(e.target)) return;
+      setMobileSearch(false);
+    });
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && header && header.classList.contains('header--search-open')){
+        setMobileSearch(false);
+      }
+    });
+
+    window.addEventListener('resize', () => {
+      if (!mobileSearchMq.matches){
+        setMobileSearch(false);
+      }
+    });
+
     input.addEventListener('input', e => {
       const q = e.target.value.trim().toUpperCase();
       if (!q){ txFilter = 'All'; renderTx(); return; }
@@ -433,6 +473,12 @@
         const sym = r.querySelector('.tx__amount small').textContent.toUpperCase();
         r.style.display = sym.includes(q) ? '' : 'none';
       });
+    });
+
+    input.addEventListener('focus', () => {
+      if (mobileSearchMq.matches){
+        setMobileSearch(true);
+      }
     });
   }
 
