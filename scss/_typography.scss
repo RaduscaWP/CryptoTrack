@@ -1,0 +1,29 @@
+@use 'variables' as *;
+
+body {
+  font-family: $font-ui;
+  font-size: $font-size-base;
+  color: $text-primary;
+  letter-spacing: 0.01em;
+}
+
+h1, h2, h3, h4 {
+  font-family: $font-ui;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: $text-primary;
+}
+
+h1 { font-size: $font-size-3xl; line-height: 1.05; }
+h2 { font-size: $font-size-xl;  line-height: 1.2; }
+h3 { font-size: $font-size-lg;  line-height: 1.25; }
+
+// Any element that carries a monetary/numeric value
+.num,
+[data-counter],
+[data-clock] {
+  font-family: $font-mono;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum', 'zero';
+  letter-spacing: -0.01em;
+}
