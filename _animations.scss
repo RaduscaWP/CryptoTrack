@@ -1,0 +1,65 @@
+@use 'variables' as *;
+
+@keyframes cardReveal {
+  0%   { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  0%   { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.35; }
+}
+
+// Staggered card reveal
+.card {
+  opacity: 0;
+  animation: cardReveal 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+}
+
+@for $i from 1 through 6 {
+  .card:nth-child(#{$i}) {
+    animation-delay: #{0.05s + $i * 0.08s};
+  }
+}
+
+// Summary strip reveal
+.summary__stat {
+  opacity: 0;
+  animation: fadeIn 0.5s ease forwards;
+
+  @for $i from 1 through 4 {
+    &:nth-child(#{$i}) { animation-delay: #{0.2s + $i * 0.05s}; }
+  }
+}
+
+// Chart + table reveal
+.chart,
+.table {
+  opacity: 0;
+  animation: fadeIn 0.6s ease forwards;
+}
+.chart { animation-delay: 0.4s; }
+.table { animation-delay: 0.5s; }
+
+// Tooltip fade (Chart.js custom tooltip element)
+.chart-tooltip {
+  opacity: 0;
+  transition: opacity $transition-speed ease, transform $transition-speed ease;
+
+  &--visible { opacity: 1; }
+}
+
+// Live-pulse dot (used if we ever want a "live" indicator)
+.live-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: $accent-green;
+  animation: pulseDot 1.8s ease-in-out infinite;
+}
