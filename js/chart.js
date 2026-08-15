@@ -210,5 +210,37 @@
     return svg;
   }
 
-  window.CT = Object.assign(window.CT || {}, { spark, areaChart, donut, bars });
+  // Bars around a zero baseline — used for daily realised P/L, which goes both ways.
+  function barsSigned(data, opts){
+    opts = opts || {};
+    const width = opts.width || 320;
+    const height = opts.height || 80;
+    const up = opts.up || 'var(--up)';
+    const down = opts.down || 'var(--down)';
+    const peak = Math.max.apply(null, data.map(Math.abs).concat([1]));
+    const mid = height / 2;
+    const bw = Math.max(1, width/data.length - 3);
+
+    const svg = el('svg', { viewBox:`0 0 ${width} ${height}` });
+    svg.setAttribute('width', '100%');
+    svg.style.display = 'block';
+
+    svg.appendChild(el('line', {
+      x1:0, x2:width, y1:mid, y2:mid, stroke:'var(--line-2)', 'stroke-width':'1'
+    }));
+
+    data.forEach((v,i) => {
+      if (!v) return;
+      const h = Math.max(1.5, (Math.abs(v)/peak) * (mid - 4));
+      svg.appendChild(el('rect', {
+        x:i*(bw+3), y: v >= 0 ? mid - h : mid,
+        width:bw, height:h, rx:'2',
+        fill: v >= 0 ? up : down,
+        opacity: 0.35 + 0.65*(Math.abs(v)/peak)
+      }));
+    });
+    return svg;
+  }
+
+  window.CT = Object.assign(window.CT || {}, { spark, areaChart, donut, bars, barsSigned });
 })();

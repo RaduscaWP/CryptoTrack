@@ -17,6 +17,7 @@
   />
 
   <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/views.css" />
 </head>
 
 <body class="app">
@@ -76,7 +77,7 @@
             <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="m10 3 2.2 4.6 5 .5-3.7 3.4 1.1 4.9L10 13.9 5.4 16.4l1.1-4.9L2.8 8.1l5-.5L10 3Z"/></svg>
           </span>
           <span>Watchlist</span>
-          <span class="navitem__badge">5</span>
+          <span class="navitem__badge" data-wl-count>5</span>
         </button>
       </nav>
 
@@ -109,12 +110,12 @@
       </nav>
 
       <div class="sidebar__profile">
-        <div class="avatar avatar--dark">RA</div>
+        <div class="avatar avatar--dark" data-acc-initials>DT</div>
         <div class="sidebar__profile-meta">
-          <div class="sidebar__profile-name">Radusca</div>
-          <div class="sidebar__profile-role">Pro member</div>
+          <div class="sidebar__profile-name" data-acc-name>Demo trader</div>
+          <div class="sidebar__profile-role">Demo account</div>
         </div>
-        <button class="sidebar__logout" aria-label="Log out">
+        <button class="sidebar__logout" data-logout aria-label="Account settings">
           <svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h6"/><path d="M8.5 10H17m0 0-2.5-2.5M17 10l-2.5 2.5"/></svg>
         </button>
       </div>
@@ -134,12 +135,12 @@
         </button>
         <div class="header__title-group">
           <div class="crumb">
-            <span>Overview</span>
+            <span data-crumb>Overview</span>
             <span class="crumb__sep">/</span>
-            <span class="crumb__current">Dashboard</span>
+            <span class="crumb__current" data-crumb-current>Dashboard</span>
           </div>
           <div class="header__title-row">
-            <h1 class="header__title">Good afternoon, Radusca</h1>
+            <h1 class="header__title">Good afternoon</h1>
             <span class="header__date" data-today>· Sun, Apr 19</span>
           </div>
         </div>
@@ -171,14 +172,14 @@
           Deposit
         </button>
 
-        <button class="userchip">
-          <span class="avatar avatar--accent">RA</span>
-          <span>Radusca</span>
+        <button class="userchip" data-logout>
+          <span class="avatar avatar--accent" data-acc-initials>DT</span>
+          <span data-acc-name>Demo trader</span>
           <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 8 4 4 4-4"/></svg>
         </button>
       </header>
 
-      <div class="content" data-content>
+      <div class="content" data-view="dashboard">
 
         <!-- Row 1: Portfolio hero + Market strip -->
         <div class="grid">
@@ -196,7 +197,7 @@
 
             <div class="hero__inner">
               <div class="hero__top">
-                <div class="hero__eyebrow">Total portfolio balance</div>
+                <div class="hero__eyebrow">Demo account value</div>
                 <div class="hero__tools">
                   <button class="pill pill--ghost" data-toggle-balance>Hide balance</button>
                   <button class="pill pill--ghost pill--icon" aria-label="More">
@@ -206,42 +207,39 @@
               </div>
 
               <div class="hero__balance">
-                <div class="hero__amount num" data-balance>$148,293<span class="hero__decimals">.40</span></div>
+                <div class="hero__amount num" data-balance>$0<span class="hero__decimals">.00</span></div>
                 <div class="hero__delta">
-                  <span class="chip chip--up-on-dark">
-                    <svg viewBox="0 0 12 12" width="10" height="10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8l3-3 3 3"/></svg>
-                    +$3,284.12 · +2.27%
-                  </span>
+                  <span class="chip chip--up-on-dark" data-hero-delta>+$0.00 · +0.00%</span>
                   <span class="hero__delta-sub">last 24h</span>
                 </div>
               </div>
 
               <div class="hero__stats">
                 <div class="hero__stat">
-                  <div class="hero__stat-k">Available</div>
-                  <div class="hero__stat-v num">$12,840.22</div>
+                  <div class="hero__stat-k">Cash available</div>
+                  <div class="hero__stat-v num" data-hero-cash>$0.00</div>
                 </div>
                 <div class="hero__stat">
-                  <div class="hero__stat-k">Invested</div>
-                  <div class="hero__stat-v num">$128,112.08</div>
+                  <div class="hero__stat-k">In positions</div>
+                  <div class="hero__stat-v num" data-hero-invested>$0.00</div>
                 </div>
                 <div class="hero__stat">
-                  <div class="hero__stat-k">Rewards (YTD)</div>
-                  <div class="hero__stat-v hero__stat-v--accent num">$7,341.10</div>
+                  <div class="hero__stat-k">Realised P/L</div>
+                  <div class="hero__stat-v hero__stat-v--accent num" data-hero-realized>$0.00</div>
                 </div>
                 <div class="hero__spacer"></div>
                 <div class="hero__actions">
-                  <button class="quickbtn" data-action="receive">
+                  <button class="quickbtn" data-action="topup">
                     <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4v10m0 0-4-4m4 4 4-4"/><path d="M4 17h12"/></svg>
-                    Receive
+                    Add cash
                   </button>
-                  <button class="quickbtn" data-action="send">
-                    <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m3 10 14-6-6 14-2-6-6-2Z"/></svg>
-                    Send
+                  <button class="quickbtn" data-action="portfolio">
+                    <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6.5A2.5 2.5 0 0 1 5.5 4h9A2.5 2.5 0 0 1 17 6.5V15a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6.5Z"/><path d="M14 11.5h2.5"/></svg>
+                    Portfolio
                   </button>
-                  <button class="quickbtn quickbtn--primary" data-action="swap">
+                  <button class="quickbtn quickbtn--primary" data-action="trade">
                     <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h11l-3-3"/><path d="M15 12H4l3 3"/></svg>
-                    Swap
+                    Trade
                   </button>
                 </div>
               </div>
@@ -288,8 +286,8 @@
                   <button class="segmented__btn" data-r="1D">1D</button>
                   <button class="segmented__btn" data-r="1W">1W</button>
                   <button class="segmented__btn is-active" data-r="1M">1M</button>
+                  <button class="segmented__btn" data-r="3M">3M</button>
                   <button class="segmented__btn" data-r="1Y">1Y</button>
-                  <button class="segmented__btn" data-r="ALL">ALL</button>
                 </div>
               </div>
             </div>
@@ -328,7 +326,7 @@
                 <div class="card__eyebrow">WATCHLIST</div>
                 <div class="card__title">Tracked assets</div>
               </div>
-              <button class="textbtn">
+              <button class="textbtn" data-goto="watchlist">
                 <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M10 4.5v11M4.5 10h11"/></svg>
                 Add coin
               </button>
@@ -379,9 +377,7 @@
                 <button class="pill is-active" data-f="All">All</button>
                 <button class="pill" data-f="Buy">Buy</button>
                 <button class="pill" data-f="Sell">Sell</button>
-                <button class="pill" data-f="Stake">Stake</button>
-                <button class="pill" data-f="Withdraw">Withdraw</button>
-                <button class="textbtn textbtn--muted">View all ↗</button>
+                <button class="textbtn textbtn--muted" data-goto="history">View all ↗</button>
               </div>
             </div>
             <div class="tx">
@@ -406,28 +402,7 @@
                 <svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor"><circle cx="4.5" cy="10" r="1.3"/><circle cx="10" cy="10" r="1.3"/><circle cx="15.5" cy="10" r="1.3"/></svg>
               </button>
             </div>
-            <div class="insights">
-              <div class="mini">
-                <div class="mini__k">Best day</div>
-                <div class="mini__v num c-up">+$4,812</div>
-                <div class="mini__sub">Apr 11</div>
-              </div>
-              <div class="mini">
-                <div class="mini__k">Worst day</div>
-                <div class="mini__v num c-down">-$2,104</div>
-                <div class="mini__sub">Apr 04</div>
-              </div>
-              <div class="mini">
-                <div class="mini__k">Win rate</div>
-                <div class="mini__v num">68%</div>
-                <div class="mini__sub">22 / 32 trades</div>
-              </div>
-              <div class="mini">
-                <div class="mini__k">Avg. hold</div>
-                <div class="mini__v num">14.2d</div>
-                <div class="mini__sub">across 9 assets</div>
-              </div>
-            </div>
+            <div class="insights" data-insights></div>
             <div class="insights__foot">
               <div class="insights__label">Daily realized P/L · last 30 days</div>
               <div class="insights__bars" data-bars></div>
@@ -436,14 +411,24 @@
         </div>
 
         <footer class="foot">
-          <span>CryptoTrack · v4.2.0 · Data refreshed 2 min ago</span>
+          <span class="foot__status" data-foot-status>Connecting to market data…</span>
           <span class="foot__links">
-            <a href="#">Status</a><a href="#">Docs</a><a href="#">Changelog</a><a href="#">API</a>
+            <a href="https://www.coingecko.com/en/api/documentation" target="_blank" rel="noopener">CoinGecko API</a>
+            <a href="https://alternative.me/crypto/fear-and-greed-index/" target="_blank" rel="noopener">Fear &amp; Greed</a>
+            <a href="https://github.com/RaduscaWP/CryptoTrack" target="_blank" rel="noopener">Source</a>
           </span>
         </footer>
       </div>
 
-      <!-- Empty state for non-dashboard tabs -->
+      <!-- Account views — the router shows exactly one at a time -->
+      <div class="content" data-view="portfolio" hidden></div>
+      <div class="content" data-view="markets" hidden></div>
+      <div class="content" data-view="trade" hidden></div>
+      <div class="content" data-view="history" hidden></div>
+      <div class="content" data-view="watchlist" hidden></div>
+      <div class="content" data-view="settings" hidden></div>
+
+      <!-- Empty state for the remaining prototype tabs -->
       <div class="empty" data-empty hidden>
         <div class="empty__box">
           <div class="empty__icon">
@@ -463,8 +448,17 @@
     <span data-toast-text></span>
   </div>
 
+  <div class="overlay" data-onboard hidden></div>
+
   <script src="js/data.js"></script>
+  <script src="js/util.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/account.js"></script>
+  <script src="js/live.js"></script>
   <script src="js/chart.js"></script>
+  <script src="js/views.js"></script>
+  <script src="js/trade.js"></script>
+  <script src="js/onboard.js"></script>
   <script src="js/ui.js"></script>
   <script src="js/sidebar.js"></script>
   <script src="js/main.js"></script>

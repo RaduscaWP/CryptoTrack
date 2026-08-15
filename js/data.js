@@ -1,112 +1,105 @@
-// Mock crypto market data
+// Tracked coin universe + offline fallback data.
+// Live values come from js/api.js; everything here is the safety net that keeps
+// the dashboard readable when the public API is rate-limited or unreachable.
 (function(){
-  const sparkUp   = [12,14,13,15,18,17,20,22,21,24,26,25,28,30,29,32,34,33,36,38];
-  const sparkDown = [30,29,31,28,27,26,24,25,22,21,23,20,19,18,19,17,15,16,14,13];
-  const sparkFlat = [20,21,20,22,21,23,22,24,23,22,24,23,25,24,26,25,27,26,28,27];
 
-  const HOLDINGS = [
-    { sym:'BTC',  name:'Bitcoin',    amount:1.8421,  price:67842.11, change:+2.34, alloc:42.8, color:'#F7931A', spark:sparkUp   },
-    { sym:'ETH',  name:'Ethereum',   amount:14.220,  price:3284.05,  change:+1.12, alloc:24.6, color:'#627EEA', spark:sparkUp   },
-    { sym:'SOL',  name:'Solana',     amount:186.40,  price:158.22,   change:+4.81, alloc:11.3, color:'#14F195', spark:sparkUp   },
-    { sym:'LINK', name:'Chainlink',  amount:412.00,  price:18.74,    change:-1.22, alloc: 6.1, color:'#2A5ADA', spark:sparkDown },
-    { sym:'AVAX', name:'Avalanche',  amount:92.50,   price:36.90,    change:+0.48, alloc: 4.9, color:'#E84142', spark:sparkFlat },
-    { sym:'DOT',  name:'Polkadot',   amount:240.00,  price:7.21,     change:-2.04, alloc: 3.2, color:'#E6007A', spark:sparkDown },
-    { sym:'MATIC',name:'Polygon',    amount:1820.0,  price:0.72,     change:+0.16, alloc: 2.7, color:'#8247E5', spark:sparkFlat },
-    { sym:'ARB',  name:'Arbitrum',   amount:850.00,  price:1.24,     change:+3.66, alloc: 2.1, color:'#28A0F0', spark:sparkUp   },
-    { sym:'USDC', name:'USD Coin',   amount:1240.0,  price:1.00,     change:+0.01, alloc: 2.3, color:'#2775CA', spark:sparkFlat },
+  // CoinGecko ids drive every REST call; sym/color drive the UI.
+  const UNIVERSE = [
+    { id:'bitcoin',     sym:'BTC',   name:'Bitcoin',   color:'#F7931A', seed:63011.00 },
+    { id:'ethereum',    sym:'ETH',   name:'Ethereum',  color:'#627EEA', seed: 1882.86 },
+    { id:'binancecoin', sym:'BNB',   name:'BNB',       color:'#F3BA2F', seed:  598.40 },
+    { id:'solana',      sym:'SOL',   name:'Solana',    color:'#14F195', seed:   75.55 },
+    { id:'ripple',      sym:'XRP',   name:'XRP',       color:'#5E6C77', seed:    2.11 },
+    { id:'cardano',     sym:'ADA',   name:'Cardano',   color:'#0033AD', seed:    0.42 },
+    { id:'dogecoin',    sym:'DOGE',  name:'Dogecoin',  color:'#C2A633', seed:    0.14 },
+    { id:'chainlink',   sym:'LINK',  name:'Chainlink', color:'#2A5ADA', seed:   12.90 },
+    { id:'avalanche-2', sym:'AVAX',  name:'Avalanche', color:'#E84142', seed:   14.20 },
+    { id:'polkadot',    sym:'DOT',   name:'Polkadot',  color:'#E6007A', seed:    2.64 },
+    { id:'litecoin',    sym:'LTC',   name:'Litecoin',  color:'#345D9D', seed:   82.10 },
+    { id:'uniswap',     sym:'UNI',   name:'Uniswap',   color:'#FF007A', seed:    6.05 },
+    { id:'arbitrum',    sym:'ARB',   name:'Arbitrum',  color:'#28A0F0', seed:    0.28 },
+    { id:'usd-coin',    sym:'USDC',  name:'USD Coin',  color:'#2775CA', seed:    1.00 },
   ];
 
-  const WATCHLIST = ['BTC','ETH','SOL','LINK','ARB'];
+  const UNIVERSE_BY_ID  = {};
+  const UNIVERSE_BY_SYM = {};
+  UNIVERSE.forEach(c => { UNIVERSE_BY_ID[c.id] = c; UNIVERSE_BY_SYM[c.sym] = c; });
 
-  const TRANSACTIONS = [
-    { id:1, type:'Buy',      asset:'BTC',  amount:0.0840, usd:+5698.72, time:'Today · 09:42',    status:'Completed' },
-    { id:2, type:'Sell',     asset:'ETH',  amount:2.1200, usd:-6962.19, time:'Today · 08:15',    status:'Completed' },
-    { id:3, type:'Stake',    asset:'SOL',  amount:40.000, usd:-6328.80, time:'Yesterday · 21:04', status:'Completed' },
-    { id:4, type:'Buy',      asset:'ARB',  amount:150.00, usd:-186.00,  time:'Yesterday · 14:22', status:'Completed' },
-    { id:5, type:'Receive',  asset:'USDC', amount:500.00, usd:+500.00,  time:'Apr 17 · 11:08',   status:'Pending'   },
-    { id:6, type:'Withdraw', asset:'BTC',  amount:0.0120, usd:-814.10,  time:'Apr 16 · 17:55',   status:'Completed' },
-  ];
+  const DEFAULT_WATCHLIST = ['BTC','ETH','SOL','LINK','ARB'];
 
-  function genSeries(base, vol, drift, n){
-    n = n || 60;
-    const out = []; let v = base; let r = 0.123;
-    for (let i = 0; i < n; i++){
-      r = (r*9301+49297)%233280; const rand = r/233280;
-      v = v + (rand-0.5)*vol + drift;
-      out.push(Math.max(0, v));
-    }
-    return out;
-  }
+  /* ---------------- deterministic fallback generators ---------------- */
 
-  const PORTFOLIO_SERIES = {
-    '1D':  genSeries(148000,  900,   6, 48),
-    '1W':  genSeries(142000, 1800,  80, 56),
-    '1M':  genSeries(128000, 3400, 280, 60),
-    '1Y':  genSeries( 72000, 6200, 1400,60),
-    'ALL': genSeries( 18000, 4200, 2700,60),
-  };
-
-  // Per-coin price series: each ends at the coin's current price.
-  function coinSeries(endPrice, totalChangePct, volPct, n, seed){
-    const start = endPrice / (1 + totalChangePct/100);
-    const drift = (endPrice - start) / (n - 1);
-    const out = []; let r = seed;
-    for (let i = 0; i < n; i++){
-      r = (r*9301+49297)%233280; const rand = r/233280;
-      const noise = (rand - 0.5) * volPct * endPrice;
-      out.push(Math.max(0.0001, start + drift*i + noise));
-    }
-    out[n-1] = endPrice;
-    return out;
-  }
   function symSeed(sym){
     let s = 0;
     for (let i = 0; i < sym.length; i++) s = (s*31 + sym.charCodeAt(i)) % 233280;
     return s + 7;
   }
-  const COIN_SERIES = {};
-  HOLDINGS.forEach(h => {
-    const s = symSeed(h.sym);
-    const dir = h.change >= 0 ? 1 : -1;
-    COIN_SERIES[h.sym] = {
-      '1D':  coinSeries(h.price, h.change,                   0.007, 48, s),
-      '1W':  coinSeries(h.price, h.change * 2.4,             0.013, 56, s + 7),
-      '1M':  coinSeries(h.price, h.change * 7,               0.022, 60, s + 13),
-      '1Y':  coinSeries(h.price, h.change * 18 + 22 * dir,   0.045, 60, s + 19),
-      'ALL': coinSeries(h.price, h.change * 35 + 70 * dir,   0.075, 60, s + 29),
-    };
-  });
 
-  const GAINERS = [
-    { sym:'SOL', name:'Solana',    price:158.22,   change:+4.81 },
-    { sym:'ARB', name:'Arbitrum',  price:1.24,     change:+3.66 },
-    { sym:'BTC', name:'Bitcoin',   price:67842.11, change:+2.34 },
-    { sym:'ETH', name:'Ethereum',  price:3284.05,  change:+1.12 },
-  ];
-  const LOSERS = [
-    { sym:'DOT',  name:'Polkadot',  price:7.21,  change:-2.04 },
-    { sym:'LINK', name:'Chainlink', price:18.74, change:-1.22 },
-    { sym:'APT',  name:'Aptos',     price:9.12,  change:-0.88 },
-    { sym:'ATOM', name:'Cosmos',    price:8.42,  change:-0.41 },
-  ];
+  // Random-walk that lands exactly on `endPrice` after `totalChangePct` of drift.
+  function coinSeries(endPrice, totalChangePct, volPct, n, seed){
+    const start = endPrice / (1 + totalChangePct/100);
+    const drift = (endPrice - start) / (n - 1);
+    const out = []; let r = seed;
+    for (let i = 0; i < n; i++){
+      r = (r*9301 + 49297) % 233280;
+      const rand = r/233280;
+      const noise = (rand - 0.5) * volPct * endPrice;
+      out.push(Math.max(0.000001, start + drift*i + noise));
+    }
+    out[n-1] = endPrice;
+    return out;
+  }
 
-  const MARKET_STATS = [
-    { label:'Total Market Cap', value:'$2.48T', change:+1.84 },
-    { label:'24h Volume',        value:'$92.1B', change:+6.20 },
-    { label:'BTC Dominance',     value:'52.7%',  change:+0.12 },
-    { label:'Fear & Greed',      value:'72',     change:+4.00, sub:'Greed' },
-  ];
+  function pseudoChange(sym){
+    // Stable per-symbol "24h" move in the -4%..+5% band, so the offline view
+    // still shows a mix of gainers and losers instead of a flat wall of zeros.
+    const s = symSeed(sym);
+    return ((s % 900) / 100) - 4;
+  }
 
-  const NEWS = [
-    { tag:'MARKETS',    title:'Spot ETH ETFs see record $312M weekly inflow', time:'2h ago' },
-    { tag:'NETWORK',    title:'Solana firedancer testnet hits 1.2M TPS peak',  time:'5h ago' },
-    { tag:'REGULATION', title:'SEC clarifies stablecoin framework guidance',   time:'Yesterday' },
-  ];
+  function fallbackMarkets(){
+    return UNIVERSE.map(c => {
+      const change = c.sym === 'USDC' ? 0.01 : pseudoChange(c.sym);
+      const s = symSeed(c.sym);
+      return {
+        id: c.id,
+        sym: c.sym,
+        name: c.name,
+        price: c.seed,
+        change: change,
+        change7d: change * 2.6,
+        spark: coinSeries(c.seed, change * 2.6, 0.014, 24, s),
+        image: null,
+        mcap: null,
+        vol: null,
+        rank: null,
+        high24: c.seed * 1.02,
+        low24: c.seed * 0.98,
+        color: c.color
+      };
+    });
+  }
 
-  const INSIGHT_BARS = [8,12,6,10,14,9,11,7,5,9,13,15,10,14,12,8,16,11,9,13,17,14,10,8,12,15,18,14,13,16];
+  const RANGE_PROFILE = {
+    '1D': { mult: 1,  vol: 0.007, n: 60 },
+    '1W': { mult: 2.4,vol: 0.013, n: 70 },
+    '1M': { mult: 7,  vol: 0.022, n: 80 },
+    '3M': { mult: 12, vol: 0.034, n: 90 },
+    '1Y': { mult: 18, vol: 0.045, n: 90 },
+  };
+
+  function fallbackSeries(sym, range){
+    const coin = UNIVERSE_BY_SYM[sym];
+    if (!coin) return null;
+    const p = RANGE_PROFILE[range] || RANGE_PROFILE['1M'];
+    const change = coin.sym === 'USDC' ? 0.02 : pseudoChange(coin.sym);
+    const dir = change >= 0 ? 1 : -1;
+    const total = range === '1Y' ? change * p.mult + 25 * dir : change * p.mult;
+    return coinSeries(coin.seed, total, p.vol, p.n, symSeed(sym) + p.n);
+  }
 
   window.CT = Object.assign(window.CT || {}, {
-    HOLDINGS, WATCHLIST, TRANSACTIONS, PORTFOLIO_SERIES, COIN_SERIES,
-    GAINERS, LOSERS, MARKET_STATS, NEWS, INSIGHT_BARS
+    UNIVERSE, UNIVERSE_BY_ID, UNIVERSE_BY_SYM, DEFAULT_WATCHLIST,
+    fallbackMarkets, fallbackSeries
   });
 })();
